@@ -6,6 +6,16 @@ IMAGE="docker.io/itzg/minecraft-bedrock-server" # 統合版マインクラフト
 CONTAINER_DIR="/opt/minecraft" # ディレクトリを指定
 PORT="19132/udp"
 
+usage() { echo "Usage: $0 {start|stop|status|restart}"; exit 1; }
+
+ensure_dir() {
+  mkdir -p "$CONTAINER_DIR"
+}
+
+exists() {
+  podman container exists "$CONTAINER_NAME"
+}
+
 start_container() {
   echo "Minecraftサーバーを起動します..."
   # memoryは適当な値を指定
