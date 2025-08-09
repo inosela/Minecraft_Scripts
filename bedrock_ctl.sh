@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # MIT License
+set -euo pipefail
+IFS=$'\n\t'
 
 CONTAINER_NAME="minecraft_be" # コンテナ名を指定
-IMAGE="docker.io/itzg/minecraft-bedrock-server" # 統合版マインクラフト配布元（固定）
+IMAGE="docker.io/itzg/minecraft-bedrock-server"
 CONTAINER_DIR="/opt/minecraft" # ディレクトリを指定
 PORT="19132/udp"
 
@@ -18,15 +20,16 @@ exists() {
 
 start_container() {
   echo "Minecraftサーバーを起動します..."
+  ensure_dir
   # memoryは適当な値を指定
   mkdir -p "$CONTAINER_DIR"
   podman run -d --name "$CONTAINER_NAME" \
     -v "$CONTAINER_DIR":/data \
     -e EULA=TRUE \
+    -e MEMORY=2G \
     -p "$PORT" \
     --label io.containers.autoupdate=registry \
     --security-opt seccomp=unconfined \
-    --memory=2g
     $IMAGE
   echo "Minecraftサーバーが起動しました。"
 }
