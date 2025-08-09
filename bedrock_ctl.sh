@@ -4,17 +4,19 @@
 CONTAINER_NAME="minecraft_be" # コンテナ名を指定
 IMAGE="docker.io/itzg/minecraft-bedrock-server" # 統合版マインクラフト配布元（固定）
 CONTAINER_DIR="/opt/minecraft" # ディレクトリを指定
+PORT="19132/udp"
 
 start_container() {
   echo "Minecraftサーバーを起動します..."
-# MEMORYは適当な値を指定
-  podman run -d --name $CONTAINER_NAME \
-    -v $CONTAINER_DIR:/data \
+  # memoryは適当な値を指定
+  mkdir -p "$CONTAINER_DIR"
+  podman run -d --name "$CONTAINER_NAME" \
+    -v "$CONTAINER_DIR":/data \
     -e EULA=TRUE \
-    -e MEMORY=2G \
-    -p 19132:19132/udp \
+    -p "$PORT" \
     --label io.containers.autoupdate=registry \
     --security-opt seccomp=unconfined \
+    --memory=2g
     $IMAGE
   echo "Minecraftサーバーが起動しました。"
 }
@@ -27,11 +29,11 @@ stop_container() {
 }
 
 status_container() {
-  CONTAINER_STATUS=$(podman ps --filter "name=$CONTAINER_NAME" --format "{{.Status}}")
-  if [ -n "$CONTAINER_STATUS" ]; then
-    echo "Minecraftサーバーは実行中です: $CONTAINER_STATUS"
+  if exists; then
+    state="$(podman inspect -f '{{.State.Status}}' "$CONTAINER_NAME")"
+    echo "Status: $state"
   else
-    echo "Minecraftサーバーは実行されていません。"
+    echo "Status: Minecraftサーバーは実行されていません。"
   fi
 }
 
@@ -47,21 +49,10 @@ restart_container() {
 # ./bedrock_ctl.sh stop    - コンテナをpodman rmで削除
 # ./bedrock_ctl.sh status  - 現在のコンテナ状況を確認
 # ./bedrock_ctl.sh restart - コンテナをpodman restartで再起動
-case "$1" in
-  start)
-    start_container
-    ;;
-  stop)
-    stop_container
-    ;;
-  status)
-    status_container
-    ;;
-  restart)
-    restart_container
-    ;;
-  *)
-    echo "Usage: $0 {start|stop|status|restart}"
-    exit 1
-    ;;
+case "${1:-}" in
+  start)   start_container ;;
+  stop)    stop_container ;;
+  status)  status_container ;;
+  restart) restart_container ;;
+  *) usage ;;
 esac
