@@ -4,8 +4,7 @@
 
 Podman または Docker 上で稼働する **Minecraft 統合版サーバー** の  
 - 起動 / 停止 / 再起動 / 状態確認  
-- 稼働監視 & バージョン変化検知（Discord通知付き）  
-を自動化するスクリプト集です。
+- 稼働監視 & バージョン変化検知（Discord通知付き）を自動化するスクリプト集です。
 
 ---
 
@@ -64,7 +63,7 @@ python bedrock_status.py
 ・・・
 ```
 
-<img width="268" height="190" alt="image" src="https://github.com/user-attachments/assets/0bb0be85-af86-485f-a420-f2ad976f2a4d" />
+<img width="268" height="190" alt="image" src="https://github.com/user-attachments/assets/8bbf3c71-0080-415a-9366-0dbc91570916" />
 
 ## 応用例
 - サーバーの自動アップデート検知＆再起動
