@@ -7,19 +7,23 @@ from mcstatus import BedrockServer
 import requests
 from colorama import init, Fore, Style
 import os
+from dotenv import load_dotenv  # pip install python-dotenv
+
+# .env読み込み
+load_dotenv()
 
 # 初期化
 init()
 
-# 設定
-SERVER_ADDRESS = "<example.minecraft.server>"       # Bedrockサーバーのアドレス
-SERVER_PORT = 19132
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/<Your Discord Server>/<Your Discord API Key>" #
-DISCORD_USER_ID = "<Your Discord User ID>"
-CHECK_INTERVAL = 30  # 秒
-VERSION_FILE = "/opt/minecraft/bedrock_last_version.txt"    # 永続化用ファイル、保存場所は適宜変更してください
+# ====== 設定 (.envから読み込み) ======
+SERVER_ADDRESS = os.getenv("SERVER_ADDRESS", "example.minecraft.server")
+SERVER_PORT = int(os.getenv("SERVER_PORT", "19132"))
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
+DISCORD_USER_ID = os.getenv("DISCORD_USER_ID", "")
+CHECK_INTERVAL = int(os.getenv("CHECK_INTERVAL", "30"))
+VERSION_FILE = os.getenv("VERSION_FILE", "/opt/minecraft/bedrock_last_version.txt")
 
-# ログ関数
+# ====== ログ関数 ======
 def log(message, level="INFO"):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     color = {
@@ -30,13 +34,13 @@ def log(message, level="INFO"):
     }.get(level, Fore.WHITE)
     print(f"{Fore.YELLOW}{now}{Style.RESET_ALL} {color}[{level}]{Style.RESET_ALL} {message}")
 
-# Discord通知
+# ====== Discord通知 ======
 def send_discord_notification(status: bool, version: str = "", version_changed=False):
     status_emoji = "🟢" if status else "🔴"
     status_text = "**オンライン**" if status else "**オフライン**"
     color_code = 0x2ECC71 if status else 0xE74C3C
 
-    mention_line = f"<@{DISCORD_USER_ID}>"  # ユーザーIDでメンション
+    mention_line = f"<@{DISCORD_USER_ID}>" if DISCORD_USER_ID else ""
 
     description = f"{mention_line}\nステータス: {status_text}\nIP: `{SERVER_ADDRESS}`"
     if version:
@@ -46,7 +50,7 @@ def send_discord_notification(status: bool, version: str = "", version_changed=F
 
     data = {
         "embeds": [{
-            "title": f"{status_emoji} MineCraft 統合版サーバー", # 好きなサーバー名を指定できます
+            "title": f"{status_emoji} MineCraft 統合版サーバー",
             "description": description,
             "color": color_code,
             "timestamp": datetime.utcnow().isoformat()
@@ -60,7 +64,7 @@ def send_discord_notification(status: bool, version: str = "", version_changed=F
     except Exception as e:
         log(f"Discord通知エラー: {e}", "ERROR")
 
-# ステータス確認
+# ====== ステータス確認 ======
 def check_server_status():
     try:
         server = BedrockServer.lookup(f"{SERVER_ADDRESS}:{SERVER_PORT}")
@@ -71,7 +75,7 @@ def check_server_status():
         log("🔴 サーバーに接続できません", "ERROR")
         return False, None
 
-# バージョン読み込み・保存
+# ====== バージョン保存 ======
 def load_last_version():
     if os.path.exists(VERSION_FILE):
         with open(VERSION_FILE, "r") as f:
@@ -83,7 +87,7 @@ def save_last_version(version):
         with open(VERSION_FILE, "w") as f:
             f.write(version)
 
-# メインループ
+# ====== メイン ======
 if __name__ == "__main__":
     log("🎮 監視開始")
     status_online = None
@@ -93,7 +97,6 @@ if __name__ == "__main__":
         current_status, current_version = check_server_status()
 
         if status_online is None:
-            # 初回判定時は通知しない
             status_online = current_status
             last_version = current_version
             save_last_version(current_version or "")
