@@ -63,7 +63,7 @@ python bedrock_status.py
 ・・・
 ```
 
-<img width="268" height="190" alt="image" src="https://github.com/user-attachments/assets/8bbf3c71-0080-415a-9366-0dbc91570916" />
+<img width="268" height="190" alt="image" src="https://github.com/user-attachments/assets/a48442a8-52fd-4a45-828f-bd579831ed96" />
 
 ## 応用例
 - サーバーの自動アップデート検知＆再起動
