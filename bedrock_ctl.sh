@@ -11,7 +11,7 @@ start_container() {
   podman run -d --name $CONTAINER_NAME \
     -v $CONTAINER_DIR:/data \
     -e EULA=TRUE \
-    -e MEMORY=2G \ 
+    -e MEMORY=2G \
     -p 19132:19132/udp \
     --label io.containers.autoupdate=registry \
     --security-opt seccomp=unconfined \
